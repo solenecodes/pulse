@@ -1,0 +1,10 @@
+.next
+node_modules
+coverage
+.env
+*.tsbuildinfo
+qa-*.png
+tmp-*.png
+.next-dev*.log
+.next-dev*.err.log
+.codex/tmp
