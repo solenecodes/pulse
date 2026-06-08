@@ -19,7 +19,7 @@ describe("product categories", () => {
     expect(products.map((product) => [product.id, product.priceCents])).toEqual([
       ["pulse-origin", 475],
       ["white-volt-zero", 450],
-      ["citrus-drive", 1200],
+      ["citrus-drive", 475],
       ["night-session", 525],
       ["recovery-mineral", 495],
       ["cherry-circuit", 475],

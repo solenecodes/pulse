@@ -87,7 +87,7 @@ const prisma = new PrismaClient({
 const products = [
   ["pulse-origin", "Pulse Origin", "core", 475, "blue", "Clean daily energy with a cold electric finish."],
   ["white-volt-zero", "White Volt Zero", "zero", 450, "red", "Bright zero-sugar energy with a sharper edge."],
-  ["citrus-drive", "Citrus Drive", "core", 1200, "green", "Fresh citrus lift for training and long city days."],
+  ["citrus-drive", "Citrus Drive", "core", 475, "green", "Fresh citrus lift for training and long city days."],
   ["night-session", "Night Session", "limited", 525, "amber", "Limited evening drop with warm spice and focus."],
   ["recovery-mineral", "Recovery Mineral", "recovery", 495, "mint", "Mineral-led reset for the space after effort."],
   ["cherry-circuit", "Cherry Circuit", "core", 475, "red", "Deep cherry energy with a crisp dry finish."],

@@ -38,7 +38,7 @@ Keep the default SQLite database URL for a local demo:
 DATABASE_URL="file:./prisma/dev.db"
 ```
 
-Set `AUTH_SECRET` to any long random string. Set `OPENAI_API_KEY` if you want the Codex SDK route to run against the API.
+Set `AUTH_SECRET` to any long random string.
 
 Create and seed the local database:
 

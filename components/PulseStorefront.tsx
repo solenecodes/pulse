@@ -358,7 +358,7 @@ export function PulseStorefront({ categories, products }: Props) {
     setAuthOpen(false);
     setAuthError("");
     await refreshCart();
-    setMessage("Signed in.");
+    setMessage("Connexion reussie.");
   }
 
   async function handleLogout() {
@@ -366,7 +366,7 @@ export function PulseStorefront({ categories, products }: Props) {
     setUser(null);
     setCartItems([]);
     setCartOpen(false);
-    setMessage("Signed out.");
+    setMessage("Deconnexion reussie.");
   }
 
   async function addToCart(productId: string) {
