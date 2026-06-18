@@ -1,6 +1,6 @@
 # Pulse
 
-Pulse is a fictional premium energy drink storefront built for a Codex hackathon demo. It includes a polished ecommerce UI, authentication, persistent carts, seeded products, meaningful tests, and a server-side Codex SDK workflow for product managers.
+Pulse is a fictional premium energy drink storefront built for a Copilot hackathon demo. It includes a polished ecommerce UI, authentication, persistent carts, seeded products, meaningful tests, and a server-side Copilot SDK workflow for product managers.
 
 ## Stack
 
@@ -9,14 +9,14 @@ Pulse is a fictional premium energy drink storefront built for a Codex hackathon
 - Prisma with SQLite for local persistence.
 - Zod for API input validation.
 - Vitest for unit tests.
-- `@openai/codex-sdk` for the product-manager Codex feature.
-- Local Codex skills in `.codex/skills` for project-specific build guidance.
+- `@openai/copilot-sdk` for the product-manager Copilot feature.
+- Local Copilot skills in `.copilot/skills` for project-specific build guidance.
 
 ## Requirements
 
 - Node.js 20 or newer.
 - npm.
-- An OpenAI API key is optional. Without it, the Codex feature returns a local fallback response instead of running the SDK.
+- An OpenAI API key is optional. Without it, the Copilot feature returns a local fallback response instead of running the SDK.
 
 ## Setup
 
@@ -56,14 +56,14 @@ Then open the local URL printed by Next.js, usually `http://localhost:3000`.
 
 ## Demo Accounts
 
-Product manager account, with Codex access:
+Product manager account, with Copilot access:
 
 ```text
 pm@pulse.test
 password123
 ```
 
-Client account, without Codex access:
+Client account, without Copilot access:
 
 ```text
 client@pulse.test
@@ -83,7 +83,7 @@ npm run db:setup
 ## Project Notes
 
 - Login uses server-side API routes and an HTTP-only session cookie.
-- Persistence is handled by Prisma models for users, sessions, products, cart items, and Codex actions.
-- The product-manager Codex panel calls `/api/codex`, which validates the request, checks the user role, records Codex action history, and calls `lib/codex.ts`.
-- Tests cover product filtering, Zod schemas, password hashing, and Codex fallback behavior.
+- Persistence is handled by Prisma models for users, sessions, products, cart items, and Copilot actions.
+- The product-manager Copilot panel calls `/api/copilot`, which validates the request, checks the user role, records Copilot action history, and calls `lib/copilot.ts`.
+- Tests cover product filtering, Zod schemas, password hashing, and Copilot fallback behavior.
 - Generated folders such as `node_modules`, `.next`, local SQLite databases, and `.env` are intentionally not included. They are recreated during setup.

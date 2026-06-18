@@ -141,7 +141,7 @@ textarea {
   font-weight: 900;
 }
 
-.codex-nav-action {
+.copilot-nav-action {
   padding: 0;
 }
 
@@ -579,7 +579,7 @@ textarea {
   line-height: 1.45;
 }
 
-.codex-chat {
+.copilot-chat {
   position: fixed;
   left: 72px;
   top: 92px;
@@ -606,16 +606,16 @@ textarea {
   -webkit-backdrop-filter: blur(34px) saturate(1.1) brightness(0.55) contrast(1.12);
 }
 
-.codex-drag-handle {
+.copilot-drag-handle {
   cursor: grab;
   user-select: none;
 }
 
-.codex-drag-handle:active {
+.copilot-drag-handle:active {
   cursor: grabbing;
 }
 
-.codex-chat::before {
+.copilot-chat::before {
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -630,12 +630,12 @@ textarea {
   pointer-events: none;
 }
 
-.codex-chat > * {
+.copilot-chat > * {
   position: relative;
   z-index: 1;
 }
 
-.codex-title {
+.copilot-title {
   margin-bottom: 0;
   width: fit-content;
   background: linear-gradient(100deg, #2585ff 0%, #a26cff 34%, #ffffff 48%, #ff3c4d 62%, #2585ff 100%);
@@ -649,15 +649,15 @@ textarea {
   font-weight: 500;
   line-height: 1.05;
   text-transform: lowercase;
-  animation: codex-letter-shine 3.8s ease-in-out infinite;
+  animation: copilot-letter-shine 3.8s ease-in-out infinite;
 }
 
-.codex-title::after {
+.copilot-title::after {
   display: none;
   content: none;
 }
 
-@keyframes codex-letter-shine {
+@keyframes copilot-letter-shine {
   0%,
   52% {
     background-position: 0% 50%;
@@ -669,11 +669,11 @@ textarea {
   }
 }
 
-.codex-chat .panel-heading .icon-action {
+.copilot-chat .panel-heading .icon-action {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.codex-thread {
+.copilot-thread {
   display: grid;
   max-height: 190px;
   gap: 10px;
@@ -683,25 +683,25 @@ textarea {
   scrollbar-width: thin;
 }
 
-.codex-thread::-webkit-scrollbar,
-.codex-history::-webkit-scrollbar {
+.copilot-thread::-webkit-scrollbar,
+.copilot-history::-webkit-scrollbar {
   width: 7px;
 }
 
-.codex-thread::-webkit-scrollbar-track,
-.codex-history::-webkit-scrollbar-track {
+.copilot-thread::-webkit-scrollbar-track,
+.copilot-history::-webkit-scrollbar-track {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
 }
 
-.codex-thread::-webkit-scrollbar-thumb,
-.codex-history::-webkit-scrollbar-thumb {
+.copilot-thread::-webkit-scrollbar-thumb,
+.copilot-history::-webkit-scrollbar-thumb {
   border: 2px solid rgba(10, 11, 14, 0.72);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.28));
 }
 
-.codex-status-line {
+.copilot-status-line {
   display: flex;
   align-items: baseline;
   gap: 4px;
@@ -711,34 +711,34 @@ textarea {
   line-height: 1.35;
 }
 
-.codex-status-line span:not(.codex-new-badge) {
+.copilot-status-line span:not(.copilot-new-badge) {
   color: #fff;
   font-weight: 900;
 }
 
-.codex-typing-word {
+.copilot-typing-word {
   display: inline-block;
   opacity: 0;
   min-width: 72px;
   white-space: nowrap;
   transform: translateY(4px);
-  animation: codex-word-in 360ms ease forwards;
+  animation: copilot-word-in 360ms ease forwards;
 }
 
-@keyframes codex-word-in {
+@keyframes copilot-word-in {
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.codex-status-done {
+.copilot-status-done {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.codex-new-badge {
+.copilot-new-badge {
   display: inline-grid;
   min-width: 34px;
   height: 18px;
@@ -753,10 +753,10 @@ textarea {
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
-  animation: codex-letter-shine 2.8s ease-in-out infinite;
+  animation: copilot-letter-shine 2.8s ease-in-out infinite;
 }
 
-.codex-history {
+.copilot-history {
   display: grid;
   max-height: 180px;
   gap: 8px;
@@ -766,12 +766,12 @@ textarea {
   scrollbar-width: thin;
 }
 
-.codex-history .eyebrow {
+.copilot-history .eyebrow {
   margin-bottom: 0;
   color: rgba(255, 255, 255, 0.72);
 }
 
-.codex-history-item {
+.copilot-history-item {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
@@ -780,11 +780,11 @@ textarea {
   padding-bottom: 8px;
 }
 
-.codex-history-item.expanded {
+.copilot-history-item.expanded {
   gap: 10px;
 }
 
-.codex-history-main {
+.copilot-history-main {
   display: grid;
   gap: 3px;
   min-width: 0;
@@ -797,7 +797,7 @@ textarea {
   text-shadow: none;
 }
 
-.codex-history-title {
+.copilot-history-title {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -809,7 +809,7 @@ textarea {
   white-space: nowrap;
 }
 
-.codex-history-main small {
+.copilot-history-main small {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -817,7 +817,7 @@ textarea {
   font-size: 10px;
 }
 
-.codex-status-pill {
+.copilot-status-pill {
   display: inline-grid;
   height: 17px;
   place-items: center;
@@ -834,44 +834,44 @@ textarea {
   text-shadow: none;
 }
 
-.codex-status-pill.in_progress {
+.copilot-status-pill.in_progress {
   border-color: rgba(80, 150, 255, 0.46);
   background: rgba(37, 133, 255, 0.42);
   color: #eaf2ff;
 }
 
-.codex-status-pill.applied {
+.copilot-status-pill.applied {
   border-color: rgba(94, 220, 156, 0.54);
   background: rgba(34, 177, 98, 0.68);
   color: #e8fff0;
 }
 
-.codex-status-pill.undone {
+.copilot-status-pill.undone {
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(160, 166, 176, 0.42);
   color: rgba(255, 255, 255, 0.82);
 }
 
-.codex-status-pill.modified {
+.copilot-status-pill.modified {
   border-color: rgba(242, 166, 59, 0.5);
   background: rgba(242, 166, 59, 0.42);
   color: #fff4df;
 }
 
-.codex-status-pill.failed {
+.copilot-status-pill.failed {
   border-color: rgba(239, 52, 52, 0.48);
   background: rgba(239, 52, 52, 0.34);
   color: rgba(255, 235, 235, 0.96);
 }
 
-.codex-history-actions {
+.copilot-history-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 5px;
 }
 
-.codex-history-actions button {
+.copilot-history-actions button {
   display: grid;
   width: 25px;
   height: 25px;
@@ -884,14 +884,14 @@ textarea {
   cursor: pointer;
 }
 
-.codex-history-actions button:hover,
-.codex-history-actions button:focus-visible {
+.copilot-history-actions button:hover,
+.copilot-history-actions button:focus-visible {
   border-color: rgba(255, 255, 255, 0.44);
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
-.codex-history-summary {
+.copilot-history-summary {
   grid-column: 1 / -1;
   display: grid;
   gap: 7px;
@@ -899,7 +899,7 @@ textarea {
   padding: 5px 0 5px 12px;
 }
 
-.codex-history-summary p {
+.copilot-history-summary p {
   margin-bottom: 0;
   color: rgba(255, 255, 255, 0.9);
   font-size: 13px;
@@ -907,12 +907,12 @@ textarea {
   text-shadow: none;
 }
 
-.codex-form {
+.copilot-form {
   display: grid;
   gap: 10px;
 }
 
-.codex-form label {
+.copilot-form label {
   display: grid;
   gap: 10px;
   color: rgba(255, 255, 255, 0.82);
@@ -922,11 +922,11 @@ textarea {
   text-transform: none;
 }
 
-.codex-helper {
+.copilot-helper {
   max-width: 48ch;
 }
 
-.codex-form textarea {
+.copilot-form textarea {
   min-height: 96px;
   resize: vertical;
   border: 0;
@@ -950,40 +950,40 @@ textarea {
   scrollbar-width: thin;
 }
 
-.codex-form textarea::placeholder {
+.copilot-form textarea::placeholder {
   color: rgba(255, 255, 255, 0.6);
   font-family: var(--nav-font);
   font-weight: 700;
 }
 
-.codex-form textarea::-webkit-scrollbar {
+.copilot-form textarea::-webkit-scrollbar {
   width: 5px;
 }
 
-.codex-form textarea::-webkit-scrollbar-track {
+.copilot-form textarea::-webkit-scrollbar-track {
   margin: 12px 0;
   background: transparent;
 }
 
-.codex-form textarea::-webkit-scrollbar-thumb {
+.copilot-form textarea::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.34);
 }
 
-.codex-form textarea::-webkit-scrollbar-thumb:hover {
+.copilot-form textarea::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.54);
 }
 
-.codex-form textarea::-webkit-scrollbar-corner {
+.copilot-form textarea::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-.codex-attachments {
+.copilot-attachments {
   display: grid;
   gap: 8px;
 }
 
-.codex-upload {
+.copilot-upload {
   display: inline-flex !important;
   width: fit-content;
   align-items: center;
@@ -999,7 +999,7 @@ textarea {
   text-transform: uppercase;
 }
 
-.codex-upload input {
+.copilot-upload input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -1007,13 +1007,13 @@ textarea {
   pointer-events: none;
 }
 
-.codex-image-list {
+.copilot-image-list {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.codex-image-pill {
+.copilot-image-pill {
   display: inline-flex;
   max-width: 100%;
   align-items: center;
@@ -1030,11 +1030,11 @@ textarea {
   font-size: 11px;
 }
 
-.codex-image-pill {
+.copilot-image-pill {
   overflow-wrap: anywhere;
 }
 
-.codex-send {
+.copilot-send {
   justify-self: end;
   min-width: 56px;
   height: 28px;
@@ -1492,7 +1492,7 @@ h3 {
   font-size: 13px;
 }
 
-.codex-note {
+.copilot-note {
   max-width: 520px;
   margin: 20px auto 0;
   border-top: 1px solid var(--line);
@@ -1501,7 +1501,7 @@ h3 {
   text-align: center;
 }
 
-.codex-note p:last-child {
+.copilot-note p:last-child {
   color: var(--muted);
   line-height: 1.5;
 }
@@ -1632,7 +1632,7 @@ h3 {
     padding: 20px;
   }
 
-  .codex-chat {
+  .copilot-chat {
     left: 20px;
     right: 20px;
     top: 88px;

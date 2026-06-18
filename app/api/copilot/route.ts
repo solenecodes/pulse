@@ -1,29 +1,29 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { runPulseCodexSkill } from "@/lib/codex";
+import { runPulseCopilotSkill } from "@/lib/copilot";
 import { prisma } from "@/lib/prisma";
-import { codexRequestSchema } from "@/lib/schemas";
+import { copilotRequestSchema } from "@/lib/schemas";
 
-function historyTitle(prompt?: string, fallback = "Codex change") {
+function historyTitle(prompt?: string, fallback = "Copilot change") {
   const cleaned = prompt?.trim().replace(/\s+/g, " ");
   if (!cleaned) return fallback;
 
   return cleaned.length > 64 ? `${cleaned.slice(0, 61)}...` : cleaned;
 }
 
-function pendingCodexResult() {
+function pendingCopilotResult() {
   return {
     mode: "fallback",
-    title: "Codex is working",
-    recommendation: "Codex is preparing this storefront change.",
+    title: "Copilot is working",
+    recommendation: "Copilot is preparing this storefront change.",
     items: []
   };
 }
 
-function failedCodexResult(message: string) {
+function failedCopilotResult(message: string) {
   return {
     mode: "fallback",
-    title: "Codex failed",
+    title: "Copilot failed",
     recommendation: message,
     items: [],
     fallbackReason: message
@@ -32,10 +32,10 @@ function failedCodexResult(message: string) {
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
-  const parsed = codexRequestSchema.safeParse(body);
+  const parsed = copilotRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid Codex request." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid Copilot request." }, { status: 400 });
   }
 
   const user = await getCurrentUser();
@@ -44,11 +44,11 @@ export async function POST(request: Request) {
   }
 
   if (user.role !== "product_manager") {
-    return NextResponse.json({ error: "Codex is only available to product managers." }, { status: 403 });
+    return NextResponse.json({ error: "Copilot is only available to product managers." }, { status: 403 });
   }
 
   const existingAction = parsed.data.actionId
-    ? await prisma.codexAction.findFirst({
+    ? await prisma.copilotAction.findFirst({
         where: {
           id: parsed.data.actionId,
           userId: user.id
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     : null;
 
   if (parsed.data.actionId && !existingAction) {
-    return NextResponse.json({ error: "Codex history item not found." }, { status: 404 });
+    return NextResponse.json({ error: "Copilot history item not found." }, { status: 404 });
   }
 
   const prompt = parsed.data.prompt ?? "";
@@ -75,22 +75,22 @@ export async function POST(request: Request) {
     };
     const previousEvents = Array.isArray(previous.events) ? previous.events : [];
 
-    await prisma.codexAction.update({
+    await prisma.copilotAction.update({
       where: { id: existingAction.id },
       data: {
         output: JSON.stringify({
           ...previous,
           status: "in_progress",
-          result: pendingCodexResult()
+          result: pendingCopilotResult()
         })
       }
     });
 
     try {
-      const result = await runPulseCodexSkill(parsed.data);
+      const result = await runPulseCopilotSkill(parsed.data);
       const status = result.fallbackReason ? "failed" : "applied";
 
-      await prisma.codexAction.update({
+      await prisma.copilotAction.update({
         where: { id: existingAction.id },
         data: {
           output: JSON.stringify({
@@ -108,15 +108,15 @@ export async function POST(request: Request) {
 
       return NextResponse.json(result);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Codex request failed.";
+      const message = error instanceof Error ? error.message : "Copilot request failed.";
 
-      await prisma.codexAction.update({
+      await prisma.copilotAction.update({
         where: { id: existingAction.id },
         data: {
           output: JSON.stringify({
             ...previous,
             status: "failed",
-            result: failedCodexResult(message)
+            result: failedCopilotResult(message)
           })
         }
       });
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const action = await prisma.codexAction.create({
+  const action = await prisma.copilotAction.create({
     data: {
       userId: user.id,
       intent: parsed.data.intent,
@@ -136,16 +136,16 @@ export async function POST(request: Request) {
         status: "in_progress",
         version: 1,
         events: [],
-        result: pendingCodexResult()
+        result: pendingCopilotResult()
       })
     }
   });
 
   try {
-    const result = await runPulseCodexSkill(parsed.data);
+    const result = await runPulseCopilotSkill(parsed.data);
     const status = result.fallbackReason ? "failed" : "applied";
 
-    await prisma.codexAction.update({
+    await prisma.copilotAction.update({
       where: { id: action.id },
       data: {
         output: JSON.stringify({
@@ -162,9 +162,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Codex request failed.";
+    const message = error instanceof Error ? error.message : "Copilot request failed.";
 
-    await prisma.codexAction.update({
+    await prisma.copilotAction.update({
       where: { id: action.id },
       data: {
         output: JSON.stringify({
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
           status: "failed",
           version: 1,
           events: [],
-          result: failedCodexResult(message)
+          result: failedCopilotResult(message)
         })
       }
     });
@@ -190,10 +190,10 @@ export async function GET() {
   }
 
   if (user.role !== "product_manager") {
-    return NextResponse.json({ error: "Codex is only available to product managers." }, { status: 403 });
+    return NextResponse.json({ error: "Copilot is only available to product managers." }, { status: 403 });
   }
 
-  const actions = await prisma.codexAction.findMany({
+  const actions = await prisma.copilotAction.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     take: 12
@@ -236,15 +236,15 @@ export async function PATCH(request: Request) {
   }
 
   if (user.role !== "product_manager") {
-    return NextResponse.json({ error: "Codex is only available to product managers." }, { status: 403 });
+    return NextResponse.json({ error: "Copilot is only available to product managers." }, { status: 403 });
   }
 
   const body = (await request.json().catch(() => null)) as { id?: string; status?: string } | null;
   if (!body?.id || !body.status || !["applied", "in_progress", "failed"].includes(body.status)) {
-    return NextResponse.json({ error: "Invalid Codex history update." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid Copilot history update." }, { status: 400 });
   }
 
-  const action = await prisma.codexAction.findFirst({
+  const action = await prisma.copilotAction.findFirst({
     where: {
       id: body.id,
       userId: user.id
@@ -252,11 +252,11 @@ export async function PATCH(request: Request) {
   });
 
   if (!action) {
-    return NextResponse.json({ error: "Codex history item not found." }, { status: 404 });
+    return NextResponse.json({ error: "Copilot history item not found." }, { status: 404 });
   }
 
   const parsed = JSON.parse(action.output) as Record<string, unknown>;
-  await prisma.codexAction.update({
+  await prisma.copilotAction.update({
     where: { id: action.id },
     data: {
       output: JSON.stringify({
@@ -276,15 +276,15 @@ export async function DELETE(request: Request) {
   }
 
   if (user.role !== "product_manager") {
-    return NextResponse.json({ error: "Codex is only available to product managers." }, { status: 403 });
+    return NextResponse.json({ error: "Copilot is only available to product managers." }, { status: 403 });
   }
 
   const id = new URL(request.url).searchParams.get("id");
   if (!id) {
-    return NextResponse.json({ error: "Missing Codex action id." }, { status: 400 });
+    return NextResponse.json({ error: "Missing Copilot action id." }, { status: 400 });
   }
 
-  await prisma.codexAction.deleteMany({
+  await prisma.copilotAction.deleteMany({
     where: {
       id,
       userId: user.id

@@ -7,7 +7,7 @@ qa-*.png
 tmp-*.png
 .next-dev*.log
 .next-dev*.err.log
-.codex/tmp
-.codex/dev-server.log
-.codex/dev-server.err.log
+.copilot/tmp
+.copilot/dev-server.log
+.copilot/dev-server.err.log
 prisma/dev.db

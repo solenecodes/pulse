@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { products } from "@/lib/products";
-import type { CodexRequestInput } from "@/lib/schemas";
+import type { CopilotRequestInput } from "@/lib/schemas";
 
-type CodexResult = {
+type CopilotResult = {
   mode: "sdk" | "fallback";
   title: string;
   recommendation: string;
@@ -17,13 +17,13 @@ function promptSummary(prompt?: string) {
 }
 
 function safeImageName(name: string) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80) || "codex-image.png";
+  return name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80) || "copilot-image.png";
 }
 
-async function writeCodexImages(input: CodexRequestInput) {
+async function writeCopilotImages(input: CopilotRequestInput) {
   if (!input.images?.length) return [];
 
-  const dir = path.join(process.cwd(), ".codex", "tmp", "codex-images");
+  const dir = path.join(process.cwd(), ".copilot", "tmp", "copilot-images");
   await fs.mkdir(dir, { recursive: true });
 
   const paths: string[] = [];
@@ -44,11 +44,11 @@ async function writeCodexImages(input: CodexRequestInput) {
   return paths;
 }
 
-async function removeCodexImages(paths: string[]) {
+async function removeCopilotImages(paths: string[]) {
   await Promise.all(paths.map((filePath) => fs.unlink(filePath).catch(() => undefined)));
 }
 
-function localRecommendation(input: CodexRequestInput): CodexResult {
+function localRecommendation(input: CopilotRequestInput): CopilotResult {
   const scoped = input.category ? products.filter((product) => product.category === input.category) : products;
   const names = scoped.slice(0, 3).map((product) => product.name);
   const summary = promptSummary(input.prompt);
@@ -94,51 +94,69 @@ function localRecommendation(input: CodexRequestInput): CodexResult {
   };
 }
 
-export async function runPulseCodexSkill(input: CodexRequestInput): Promise<CodexResult> {
-  if (process.env.PULSE_CODEX_FORCE_FALLBACK === "true") {
+export async function runPulseCopilotSkill(input: CopilotRequestInput): Promise<CopilotResult> {
+  if (process.env.PULSE_COPILOT_FORCE_FALLBACK === "true") {
     return localRecommendation(input);
   }
 
-  const imagePaths = await writeCodexImages(input);
+  const imagePaths = await writeCopilotImages(input);
 
   try {
-    const { Codex } = await import("@openai/codex-sdk");
-    const client = new Codex();
+    const { CopilotClient, approveAll } = await import("@github/copilot-sdk");
     const category = input.category ? ` for ${input.category}` : "";
     const freeformPrompt = input.prompt ? `\n\nProduct manager request:\n${input.prompt}` : "";
     const imageInstruction = imagePaths.length
       ? "\n\nUse the attached image(s) as visual context. Refer to visible UI, layout, text, and styling details when relevant."
       : "";
-    const thread = client.startThread({
-      ...(process.env.CODEX_MODEL ? { model: process.env.CODEX_MODEL } : {}),
-      sandboxMode: "workspace-write",
-      workingDirectory: process.cwd(),
-      skipGitRepoCheck: true
-    });
-    const response = await thread.run([
-      {
-        type: "text",
-        text: `You are working in the Pulse premium energy drink ecommerce app repository. For this ${input.intent} request${category}, inspect the local project and directly implement the requested storefront change when it is safe and specific enough. Keep the existing premium visual style, avoid unrelated refactors, and preserve tests. If the request is ambiguous or cannot be implemented, explain the blocker briefly instead of only giving a plan.${freeformPrompt}${imageInstruction}`
-      },
-      ...imagePaths.map((filePath) => ({ type: "local_image" as const, path: filePath }))
-    ]);
-    const fallback = localRecommendation(input);
 
-    return {
-      mode: response.finalResponse ? "sdk" : "fallback",
-      title: response.finalResponse ? "Codex result" : fallback.title,
-      recommendation: response.finalResponse || fallback.recommendation,
-      items: response.finalResponse ? [] : fallback.items
-    };
+    const client = new CopilotClient({
+      workingDirectory: process.cwd(),
+      env: process.env,
+      onListModels: undefined
+    });
+    let session: Awaited<ReturnType<CopilotClient["createSession"]>> | undefined;
+
+    try {
+      await client.start();
+      session = await client.createSession({
+        model: process.env.COPILOT_MODEL || "gpt-5",
+        onPermissionRequest: approveAll
+      });
+
+      const response = await session.sendAndWait(
+        {
+          prompt: `You are working in the Pulse premium energy drink ecommerce app repository. For this ${input.intent} request${category}, inspect the local project and directly implement the requested storefront change when it is safe and specific enough. Keep the existing premium visual style, avoid unrelated refactors, and preserve tests. If the request is ambiguous or cannot be implemented, explain the blocker briefly instead of only giving a plan.${freeformPrompt}${imageInstruction}`,
+          attachments: imagePaths.map((filePath) => ({
+            type: "file" as const,
+            path: filePath,
+            displayName: path.basename(filePath)
+          }))
+        },
+        120000
+      );
+
+      const recommendation = typeof response?.data?.content === "string" ? response.data.content.trim() : "";
+      const fallback = localRecommendation(input);
+
+      return {
+        mode: recommendation ? "sdk" : "fallback",
+        title: recommendation ? "Copilot result" : fallback.title,
+        recommendation: recommendation || fallback.recommendation,
+        items: recommendation ? [] : fallback.items
+      };
+    } finally {
+      await session?.disconnect().catch(() => undefined);
+      await client.stop().catch(() => undefined);
+    }
   } catch (error) {
     const fallback = localRecommendation(input);
-    const message = error instanceof Error ? error.message : "Codex SDK request failed.";
+    const message = error instanceof Error ? error.message : "GitHub Copilot SDK request failed.";
 
     return {
       ...fallback,
       fallbackReason: message
     };
   } finally {
-    await removeCodexImages(imagePaths);
+    await removeCopilotImages(imagePaths);
   }
 }

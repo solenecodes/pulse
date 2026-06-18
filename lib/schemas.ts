@@ -10,7 +10,7 @@ export const cartItemSchema = z.object({
   quantity: z.number().int().min(1).max(24).default(1)
 });
 
-export const codexRequestSchema = z.object({
+export const copilotRequestSchema = z.object({
   intent: z.enum(["merchandising", "product-copy", "qa", "feature-request"]),
   prompt: z.string().min(3).max(1200).optional(),
   category: z.enum(["core", "zero", "recovery", "limited"]).optional(),
@@ -27,4 +27,4 @@ export const codexRequestSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
-export type CodexRequestInput = z.infer<typeof codexRequestSchema>;
+export type CopilotRequestInput = z.infer<typeof copilotRequestSchema>;

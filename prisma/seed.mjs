@@ -65,7 +65,7 @@ function ensureSchema() {
 
     CREATE UNIQUE INDEX IF NOT EXISTS "CartItem_userId_productId_key" ON "CartItem" ("userId", "productId");
 
-    CREATE TABLE IF NOT EXISTS "CodexAction" (
+    CREATE TABLE IF NOT EXISTS "CopilotAction" (
       "id" TEXT NOT NULL PRIMARY KEY,
       "userId" TEXT,
       "intent" TEXT NOT NULL,

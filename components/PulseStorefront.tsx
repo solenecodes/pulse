@@ -10,7 +10,7 @@ type Props = {
   products: PulseProduct[];
 };
 
-type CodexResult = {
+type CopilotResult = {
   mode: "sdk" | "fallback";
   title: string;
   recommendation: string;
@@ -35,12 +35,12 @@ type StorefrontUser = {
   role: "product_manager" | "client" | string;
 };
 
-type CodexImageAttachment = {
+type CopilotImageAttachment = {
   name: string;
   dataUrl: string;
 };
 
-type CodexHistoryItem = {
+type CopilotHistoryItem = {
   id: string;
   intent: string;
   createdAt: string;
@@ -48,7 +48,7 @@ type CodexHistoryItem = {
   prompt: string;
   category: ProductCategory | null;
   imageCount: number;
-  result: CodexResult;
+  result: CopilotResult;
   status?: "in_progress" | "applied" | "failed";
   version?: number;
   events?: string[];
@@ -75,16 +75,16 @@ const categoryDetails: Record<ProductCategory, { title: string; summary: string 
 };
 
 const heroSlides = ["/assets/hero-desert-pulse.png", "/assets/hero-mountain-pulse.png"];
-const codexThinkingWords = ["thinking", "typing", "planning", "creating", "checking", "coding", "reviewing", "saving", "polishing"];
+const copilotThinkingWords = ["thinking", "typing", "planning", "creating", "checking", "coding", "reviewing", "saving", "polishing"];
 
-function codexTitle(prompt: string) {
+function copilotTitle(prompt: string) {
   const cleaned = prompt.trim().replace(/\s+/g, " ");
   if (!cleaned) return "New storefront request";
 
   return cleaned.length > 58 ? `${cleaned.slice(0, 55)}...` : cleaned;
 }
 
-function codexSummary(result: CodexResult) {
+function copilotSummary(result: CopilotResult) {
   const cleaned = result.recommendation
     .replace(/\[[^\]]+\]\([^)]+\)/g, "$1")
     .replace(/\[[^\]]+\]\([^)]*\)/g, "")
@@ -113,12 +113,12 @@ function codexSummary(result: CodexResult) {
     );
   }
 
-  return parts.length ? parts.slice(0, 6) : ["Codex applied the requested storefront change."];
+  return parts.length ? parts.slice(0, 6) : ["Copilot applied the requested storefront change."];
 }
 
-function cleanCodexPrompt(prompt: string) {
+function cleanCopilotPrompt(prompt: string) {
   return prompt
-    .replace(/^Undo this previous Codex change and restore the previous behavior as closely as possible:\s*/i, "")
+    .replace(/^Undo this previous Copilot change and restore the previous behavior as closely as possible:\s*/i, "")
     .replace(/^Modify this previous change:\s*/i, "")
     .trim()
     .replace(/\s+/g, " ")
@@ -131,23 +131,23 @@ function sentenceCase(text: string) {
   return `${text.charAt(0).toLowerCase()}${text.slice(1)}`;
 }
 
-function codexHistorySummary(item: CodexHistoryItem) {
-  const request = cleanCodexPrompt(item.prompt);
+function copilotHistorySummary(item: CopilotHistoryItem) {
+  const request = cleanCopilotPrompt(item.prompt);
   const lines = request ? [`User asked to ${sentenceCase(request)}.`] : ["User asked for a storefront change."];
 
   if (item.status === "failed") {
-    return [...lines, "Codex could not finish this change."];
+    return [...lines, "Copilot could not finish this change."];
   }
 
-  const cleanResult = codexSummary(item.result).find((line) => !/\bimplemented|changed|restored|file|class|build|test|sdk\b/i.test(line));
+  const cleanResult = copilotSummary(item.result).find((line) => !/\bimplemented|changed|restored|file|class|build|test|sdk\b/i.test(line));
 
   const eventLines =
     item.events
-      ?.map(cleanCodexPrompt)
+      ?.map(cleanCopilotPrompt)
       .filter(Boolean)
       .map((event) => `Later update: ${sentenceCase(event)}.`) ?? [];
 
-  return [...lines, cleanResult ?? "Codex applied the requested change.", ...eventLines].slice(0, 4);
+  return [...lines, cleanResult ?? "Copilot applied the requested change.", ...eventLines].slice(0, 4);
 }
 
 function PriceDisplay({ product }: { product: PulseProduct }) {
@@ -180,18 +180,18 @@ export function PulseStorefront({ categories, products }: Props) {
   const [promoCode, setPromoCode] = useState("");
   const [message, setMessage] = useState("");
   const [authError, setAuthError] = useState("");
-  const [codexOpen, setCodexOpen] = useState(false);
-  const [codexPrompt, setCodexPrompt] = useState("");
-  const [codexImages, setCodexImages] = useState<CodexImageAttachment[]>([]);
-  const [codexError, setCodexError] = useState("");
-  const [codexResult, setCodexResult] = useState<CodexResult | null>(null);
-  const [codexHistory, setCodexHistory] = useState<CodexHistoryItem[]>([]);
-  const [codexPosition, setCodexPosition] = useState({ x: 72, y: 92 });
-  const [expandedCodexHistoryId, setExpandedCodexHistoryId] = useState<string | null>(null);
-  const [activeCodexActionId, setActiveCodexActionId] = useState<string | null>(null);
-  const [codexThinkingIndex, setCodexThinkingIndex] = useState(0);
-  const [codexDoneMessage, setCodexDoneMessage] = useState("");
-  const [isCodexLoading, setIsCodexLoading] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
+  const [copilotPrompt, setCopilotPrompt] = useState("");
+  const [copilotImages, setCopilotImages] = useState<CopilotImageAttachment[]>([]);
+  const [copilotError, setCopilotError] = useState("");
+  const [copilotResult, setCopilotResult] = useState<CopilotResult | null>(null);
+  const [copilotHistory, setCopilotHistory] = useState<CopilotHistoryItem[]>([]);
+  const [copilotPosition, setCopilotPosition] = useState({ x: 72, y: 92 });
+  const [expandedCopilotHistoryId, setExpandedCopilotHistoryId] = useState<string | null>(null);
+  const [activeCopilotActionId, setActiveCopilotActionId] = useState<string | null>(null);
+  const [copilotThinkingIndex, setCopilotThinkingIndex] = useState(0);
+  const [copilotDoneMessage, setCopilotDoneMessage] = useState("");
+  const [isCopilotLoading, setIsCopilotLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PulseProduct | null>(null);
 
   const visibleProducts = useMemo(
@@ -210,7 +210,7 @@ export function PulseStorefront({ categories, products }: Props) {
   const activeDetails = categoryDetails[activeCategory];
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
   const cartTotal = cartItems.reduce((total, item) => total + item.quantity * item.product.priceCents, 0);
-  const canUseCodex = user?.role === "product_manager";
+  const canUseCopilot = user?.role === "product_manager";
 
   async function refreshCart() {
     const response = await fetch("/api/cart");
@@ -242,23 +242,23 @@ export function PulseStorefront({ categories, products }: Props) {
   }, [isHeroPaused]);
 
   useEffect(() => {
-    if (codexOpen && canUseCodex) {
-      refreshCodexHistory();
+    if (copilotOpen && canUseCopilot) {
+      refreshCopilotHistory();
     }
-  }, [codexOpen, canUseCodex]);
+  }, [copilotOpen, canUseCopilot]);
 
   useEffect(() => {
-    if (!isCodexLoading) {
-      setCodexThinkingIndex(0);
+    if (!isCopilotLoading) {
+      setCopilotThinkingIndex(0);
       return;
     }
 
     const timer = window.setInterval(() => {
-      setCodexThinkingIndex((index) => (index + 1) % codexThinkingWords.length);
+      setCopilotThinkingIndex((index) => (index + 1) % copilotThinkingWords.length);
     }, 2000);
 
     return () => window.clearInterval(timer);
-  }, [isCodexLoading]);
+  }, [isCopilotLoading]);
 
   useLayoutEffect(() => {
     function updateHeaderTone() {
@@ -290,14 +290,14 @@ export function PulseStorefront({ categories, products }: Props) {
       window.removeEventListener("scroll", updateHeaderTone);
       window.removeEventListener("resize", updateHeaderTone);
     };
-  }, [heroIndex, canUseCodex, user, selectedProduct, authOpen, cartOpen, searchOpen, codexOpen]);
+  }, [heroIndex, canUseCopilot, user, selectedProduct, authOpen, cartOpen, searchOpen, copilotOpen]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setAuthOpen(false);
         setCartOpen(false);
-        setCodexOpen(false);
+        setCopilotOpen(false);
         setSearchOpen(false);
         setSelectedProduct(null);
       }
@@ -310,7 +310,7 @@ export function PulseStorefront({ categories, products }: Props) {
   function chooseCategory(category: ProductCategory) {
     setActiveCategory(category);
     setMessage("");
-    setCodexResult(null);
+    setCopilotResult(null);
     setSearchOpen(false);
     setSelectedProduct(null);
   }
@@ -426,15 +426,15 @@ export function PulseStorefront({ categories, products }: Props) {
     setMessage("Removed from cart.");
   }
 
-  function openCodexChat() {
-    if (!canUseCodex) {
-      setMessage("Codex is only available to product managers.");
+  function openCopilotChat() {
+    if (!canUseCopilot) {
+      setMessage("Copilot is only available to product managers.");
       return;
     }
 
-    setCodexOpen(true);
-    setCodexError("");
-    refreshCodexHistory();
+    setCopilotOpen(true);
+    setCopilotError("");
+    refreshCopilotHistory();
   }
 
   function openSearch() {
@@ -443,20 +443,20 @@ export function PulseStorefront({ categories, products }: Props) {
     setSelectedProduct(null);
   }
 
-  async function refreshCodexHistory() {
-    const response = await fetch("/api/codex");
+  async function refreshCopilotHistory() {
+    const response = await fetch("/api/copilot");
     if (!response.ok) return;
 
     const data = await response.json();
-    setCodexHistory((data.actions ?? []).map((item: CodexHistoryItem) => ({ ...item, status: item.status ?? "applied" })));
+    setCopilotHistory((data.actions ?? []).map((item: CopilotHistoryItem) => ({ ...item, status: item.status ?? "applied" })));
   }
 
-  function moveCodexWindow(event: PointerEvent<HTMLElement>) {
-    const startX = event.clientX - codexPosition.x;
-    const startY = event.clientY - codexPosition.y;
+  function moveCopilotWindow(event: PointerEvent<HTMLElement>) {
+    const startX = event.clientX - copilotPosition.x;
+    const startY = event.clientY - copilotPosition.y;
 
     function handlePointerMove(moveEvent: globalThis.PointerEvent) {
-      setCodexPosition({
+      setCopilotPosition({
         x: Math.max(12, Math.min(window.innerWidth - 120, moveEvent.clientX - startX)),
         y: Math.max(12, Math.min(window.innerHeight - 80, moveEvent.clientY - startY))
       });
@@ -486,7 +486,7 @@ export function PulseStorefront({ categories, products }: Props) {
     });
   }
 
-  async function attachCodexImages(files: File[], source: "file" | "paste") {
+  async function attachCopilotImages(files: File[], source: "file" | "paste") {
     const images = files.filter((file) => file.type.startsWith("image/"));
 
     if (!images.length) return;
@@ -504,52 +504,52 @@ export function PulseStorefront({ categories, products }: Props) {
         })
       );
 
-      setCodexImages((current) => [...current, ...attachments].slice(0, 4));
-      setCodexError("");
+      setCopilotImages((current) => [...current, ...attachments].slice(0, 4));
+      setCopilotError("");
     } catch {
-      setCodexError("Could not attach that image.");
+      setCopilotError("Could not attach that image.");
     }
   }
 
-  function handleCodexPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+  function handleCopilotPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
     const files = Array.from(event.clipboardData.files).filter((file) => file.type.startsWith("image/"));
 
     if (!files.length) return;
 
     event.preventDefault();
-    attachCodexImages(files, "paste");
+    attachCopilotImages(files, "paste");
   }
 
-  async function handleCodexSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleCopilotSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!canUseCodex) {
-      setCodexError("Codex is only available to product managers.");
+    if (!canUseCopilot) {
+      setCopilotError("Copilot is only available to product managers.");
       return;
     }
 
-    if (codexPrompt.trim().length < 3 && codexImages.length === 0) {
-      setCodexError("Write a short feature request or attach an image.");
+    if (copilotPrompt.trim().length < 3 && copilotImages.length === 0) {
+      setCopilotError("Write a short feature request or attach an image.");
       return;
     }
 
-    const prompt = codexPrompt.trim() || "Review the attached image and suggest a storefront feature.";
-    const pendingId = activeCodexActionId ?? `pending-${Date.now()}`;
-    const pendingResult: CodexResult = {
+    const prompt = copilotPrompt.trim() || "Review the attached image and suggest a storefront feature.";
+    const pendingId = activeCopilotActionId ?? `pending-${Date.now()}`;
+    const pendingResult: CopilotResult = {
       mode: "fallback",
-      title: "Codex is working",
-      recommendation: "Codex is preparing this storefront change.",
+      title: "Copilot is working",
+      recommendation: "Copilot is preparing this storefront change.",
       items: []
     };
 
-    setCodexError("");
-    setCodexResult(null);
-    setCodexDoneMessage("");
-    setExpandedCodexHistoryId(pendingId);
-    setCodexHistory((current) =>
-      activeCodexActionId
+    setCopilotError("");
+    setCopilotResult(null);
+    setCopilotDoneMessage("");
+    setExpandedCopilotHistoryId(pendingId);
+    setCopilotHistory((current) =>
+      activeCopilotActionId
         ? current.map((item) =>
-            item.id === activeCodexActionId
+            item.id === activeCopilotActionId
               ? {
                   ...item,
                   status: "in_progress",
@@ -562,10 +562,10 @@ export function PulseStorefront({ categories, products }: Props) {
               id: pendingId,
               intent: "feature-request",
               createdAt: new Date().toISOString(),
-              title: codexTitle(prompt),
+              title: copilotTitle(prompt),
               prompt,
               category: activeCategory,
-              imageCount: codexImages.length,
+              imageCount: copilotImages.length,
               result: pendingResult,
               status: "in_progress",
               version: 1,
@@ -575,16 +575,16 @@ export function PulseStorefront({ categories, products }: Props) {
             ...current
           ]
     );
-    setIsCodexLoading(true);
-    const response = await fetch("/api/codex", {
+    setIsCopilotLoading(true);
+    const response = await fetch("/api/copilot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ intent: "feature-request", category: activeCategory, prompt, images: codexImages, actionId: activeCodexActionId ?? undefined })
+      body: JSON.stringify({ intent: "feature-request", category: activeCategory, prompt, images: copilotImages, actionId: activeCopilotActionId ?? undefined })
     });
     const data = await response.json();
     if (!response.ok) {
-      setCodexError(data.error ?? "Codex request failed.");
-      setCodexHistory((current) =>
+      setCopilotError(data.error ?? "Copilot request failed.");
+      setCopilotHistory((current) =>
         current.map((item) =>
           item.id === pendingId
             ? {
@@ -592,68 +592,68 @@ export function PulseStorefront({ categories, products }: Props) {
                 status: "failed",
                 result: {
                   mode: "fallback",
-                  title: "Codex failed",
-                  recommendation: data.error ?? "Codex could not finish this change.",
+                  title: "Copilot failed",
+                  recommendation: data.error ?? "Copilot could not finish this change.",
                   items: []
                 }
               }
             : item
         )
       );
-      await refreshCodexHistory();
+      await refreshCopilotHistory();
     } else {
-      setCodexResult(data);
-      setCodexDoneMessage("Codex is done.");
-      setCodexHistory((current) =>
+      setCopilotResult(data);
+      setCopilotDoneMessage("Copilot is done.");
+      setCopilotHistory((current) =>
         current.map((item) =>
           item.id === pendingId
             ? {
                 ...item,
                 status: "applied",
-                version: activeCodexActionId ? (item.version ?? 1) + 1 : item.version ?? 1,
-                events: activeCodexActionId ? [...(item.events ?? []), prompt].slice(-4) : item.events ?? [],
+                version: activeCopilotActionId ? (item.version ?? 1) + 1 : item.version ?? 1,
+                events: activeCopilotActionId ? [...(item.events ?? []), prompt].slice(-4) : item.events ?? [],
                 result: data
               }
             : item
         )
       );
-      await refreshCodexHistory();
+      await refreshCopilotHistory();
     }
-    setActiveCodexActionId(null);
-    setIsCodexLoading(false);
+    setActiveCopilotActionId(null);
+    setIsCopilotLoading(false);
   }
 
-  function reuseCodexHistory(item: CodexHistoryItem) {
-    setExpandedCodexHistoryId((current) => (current === item.id ? null : item.id));
-    setCodexError("");
+  function reuseCopilotHistory(item: CopilotHistoryItem) {
+    setExpandedCopilotHistoryId((current) => (current === item.id ? null : item.id));
+    setCopilotError("");
   }
 
-  function editCodexHistory(item: CodexHistoryItem) {
-    setCodexPrompt(`Modify this previous change: ${item.prompt}`);
-    setCodexResult(item.result);
-    setActiveCodexActionId(item.id);
-    setExpandedCodexHistoryId(item.id);
-    setCodexError("");
+  function editCopilotHistory(item: CopilotHistoryItem) {
+    setCopilotPrompt(`Modify this previous change: ${item.prompt}`);
+    setCopilotResult(item.result);
+    setActiveCopilotActionId(item.id);
+    setExpandedCopilotHistoryId(item.id);
+    setCopilotError("");
   }
 
-  function undoCodexHistory(item: CodexHistoryItem) {
-    setCodexPrompt(`Undo this previous Codex change and restore the previous behavior as closely as possible: ${item.prompt}`);
-    setActiveCodexActionId(item.id);
-    setExpandedCodexHistoryId(item.id);
-    setCodexResult(item.result);
-    setCodexError("");
+  function undoCopilotHistory(item: CopilotHistoryItem) {
+    setCopilotPrompt(`Undo this previous Copilot change and restore the previous behavior as closely as possible: ${item.prompt}`);
+    setActiveCopilotActionId(item.id);
+    setExpandedCopilotHistoryId(item.id);
+    setCopilotResult(item.result);
+    setCopilotError("");
   }
 
-  async function deleteCodexHistory(item: CodexHistoryItem) {
-    const response = await fetch(`/api/codex?id=${encodeURIComponent(item.id)}`, { method: "DELETE" });
+  async function deleteCopilotHistory(item: CopilotHistoryItem) {
+    const response = await fetch(`/api/copilot?id=${encodeURIComponent(item.id)}`, { method: "DELETE" });
 
     if (!response.ok) {
-      setCodexError("Could not delete that history item.");
+      setCopilotError("Could not delete that history item.");
       return;
     }
 
-    setCodexHistory((current) => current.filter((historyItem) => historyItem.id !== item.id));
-    setCodexError("");
+    setCopilotHistory((current) => current.filter((historyItem) => historyItem.id !== item.id));
+    setCopilotError("");
   }
 
   function ToneText({ className = "", text }: { className?: string; text: string }) {
@@ -669,10 +669,10 @@ export function PulseStorefront({ categories, products }: Props) {
           <a href="#shop" onClick={() => chooseCategory("core")} {...inertProps}>
             <ToneText text="SHOP" />
           </a>
-          {canUseCodex ? (
-            <button className="nav-action codex-nav-action" type="button" onClick={openCodexChat} tabIndex={decorative ? -1 : undefined}>
+          {canUseCopilot ? (
+            <button className="nav-action copilot-nav-action" type="button" onClick={openCopilotChat} tabIndex={decorative ? -1 : undefined}>
               <Sparkles size={14} aria-hidden="true" />
-              <ToneText text="CODEX" />
+              <ToneText text="COPILOT" />
             </button>
           ) : null}
         </nav>
@@ -992,73 +992,73 @@ export function PulseStorefront({ categories, products }: Props) {
         </div>
       ) : null}
 
-      {codexOpen && canUseCodex ? (
+      {copilotOpen && canUseCopilot ? (
         <aside
-          className="codex-chat"
+          className="copilot-chat"
           role="dialog"
-          aria-label="Codex feature chat"
-          style={{ left: codexPosition.x, top: codexPosition.y }}
+          aria-label="Copilot feature chat"
+          style={{ left: copilotPosition.x, top: copilotPosition.y }}
         >
-          <div className="panel-heading codex-drag-handle" onPointerDown={moveCodexWindow}>
-            <h2 className="codex-title">codex</h2>
+          <div className="panel-heading copilot-drag-handle" onPointerDown={moveCopilotWindow}>
+            <h2 className="copilot-title">copilot</h2>
             <button
               className="icon-action"
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => setCodexOpen(false)}
-              aria-label="Close Codex chat"
+              onClick={() => setCopilotOpen(false)}
+              aria-label="Close Copilot chat"
             >
               <X size={18} strokeWidth={2.4} aria-hidden="true" />
             </button>
           </div>
 
-          <div className="codex-thread" aria-live="polite">
-            {isCodexLoading ? (
-              <p className="codex-status-line">
-                Codex is{" "}
-                <span className="codex-typing-word" key={codexThinkingWords[codexThinkingIndex]}>
-                  {codexThinkingWords[codexThinkingIndex]}
+          <div className="copilot-thread" aria-live="polite">
+            {isCopilotLoading ? (
+              <p className="copilot-status-line">
+                Copilot is{" "}
+                <span className="copilot-typing-word" key={copilotThinkingWords[copilotThinkingIndex]}>
+                  {copilotThinkingWords[copilotThinkingIndex]}
                 </span>
               </p>
-            ) : codexDoneMessage ? (
-              <p className="codex-status-line codex-status-done">
-                <span className="codex-new-badge">NEW</span>
-                {codexDoneMessage} New feature applied.
+            ) : copilotDoneMessage ? (
+              <p className="copilot-status-line copilot-status-done">
+                <span className="copilot-new-badge">NEW</span>
+                {copilotDoneMessage} New feature applied.
               </p>
             ) : null}
           </div>
 
-          {codexHistory.length ? (
-            <div className="codex-history" aria-label="Codex history">
+          {copilotHistory.length ? (
+            <div className="copilot-history" aria-label="Copilot history">
               <p className="eyebrow">Recent changes</p>
-              {codexHistory.map((item) => (
-                <article className={`codex-history-item ${expandedCodexHistoryId === item.id ? "expanded" : ""}`} key={item.id}>
-                  <button className="codex-history-main" type="button" onClick={() => reuseCodexHistory(item)}>
-                    <span className="codex-history-title">
-                      {item.isNew ? <span className="codex-new-badge">NEW</span> : null}
+              {copilotHistory.map((item) => (
+                <article className={`copilot-history-item ${expandedCopilotHistoryId === item.id ? "expanded" : ""}`} key={item.id}>
+                  <button className="copilot-history-main" type="button" onClick={() => reuseCopilotHistory(item)}>
+                    <span className="copilot-history-title">
+                      {item.isNew ? <span className="copilot-new-badge">NEW</span> : null}
                       {item.title}
                     </span>
                     <small>
                       {new Date(item.createdAt).toLocaleDateString()} · {item.imageCount} image{item.imageCount === 1 ? "" : "s"}
-                      <span className={`codex-status-pill ${item.status ?? "applied"}`}>
+                      <span className={`copilot-status-pill ${item.status ?? "applied"}`}>
                         {item.status === "in_progress" ? "running" : `${item.status ?? "applied"} v${item.version ?? 1}`}
                       </span>
                     </small>
                   </button>
-                  <div className="codex-history-actions">
-                    <button type="button" onClick={() => editCodexHistory(item)} aria-label={`Edit ${item.title}`} title="Edit">
+                  <div className="copilot-history-actions">
+                    <button type="button" onClick={() => editCopilotHistory(item)} aria-label={`Edit ${item.title}`} title="Edit">
                       <Pencil size={12} strokeWidth={2.4} aria-hidden="true" />
                     </button>
-                    <button type="button" onClick={() => undoCodexHistory(item)} aria-label={`Undo ${item.title}`} title="Undo">
+                    <button type="button" onClick={() => undoCopilotHistory(item)} aria-label={`Undo ${item.title}`} title="Undo">
                       <RotateCcw size={12} strokeWidth={2.4} aria-hidden="true" />
                     </button>
-                    <button type="button" onClick={() => deleteCodexHistory(item)} aria-label={`Delete ${item.title}`} title="Delete">
+                    <button type="button" onClick={() => deleteCopilotHistory(item)} aria-label={`Delete ${item.title}`} title="Delete">
                       <Trash2 size={12} strokeWidth={2.4} aria-hidden="true" />
                     </button>
                   </div>
-                  {expandedCodexHistoryId === item.id ? (
-                    <div className="codex-history-summary">
-                      {codexHistorySummary(item).map((sentence) => (
+                  {expandedCopilotHistoryId === item.id ? (
+                    <div className="copilot-history-summary">
+                      {copilotHistorySummary(item).map((sentence) => (
                         <p key={sentence}>{sentence}</p>
                       ))}
                     </div>
@@ -1068,27 +1068,27 @@ export function PulseStorefront({ categories, products }: Props) {
             </div>
           ) : null}
 
-          <form className="codex-form" onSubmit={handleCodexSubmit}>
-            {codexError ? (
+          <form className="copilot-form" onSubmit={handleCopilotSubmit}>
+            {copilotError ? (
               <p className="auth-error" role="alert">
-                {codexError}
+                {copilotError}
               </p>
             ) : null}
             <label>
-              <span className="codex-helper">This developer feature is hidden from clients and is only available to product managers.</span>
+              <span className="copilot-helper">This developer feature is hidden from clients and is only available to product managers.</span>
               <textarea
-                value={codexPrompt}
+                value={copilotPrompt}
                 onChange={(event) => {
-                  setCodexPrompt(event.target.value);
-                  setCodexError("");
+                  setCopilotPrompt(event.target.value);
+                  setCopilotError("");
                 }}
-                onPaste={handleCodexPaste}
+                onPaste={handleCopilotPaste}
                 rows={4}
                 placeholder="Example: add a wishlist button. Paste an image here to attach it."
               />
             </label>
-            <div className="codex-attachments">
-              <label className="codex-upload">
+            <div className="copilot-attachments">
+              <label className="copilot-upload">
                 <Paperclip size={15} strokeWidth={2.3} aria-hidden="true" />
                 <span className="sr-only">Attach image</span>
                 <input
@@ -1096,19 +1096,19 @@ export function PulseStorefront({ categories, products }: Props) {
                   accept="image/*"
                   multiple
                   onChange={(event) => {
-                    attachCodexImages(Array.from(event.target.files ?? []), "file");
+                    attachCopilotImages(Array.from(event.target.files ?? []), "file");
                     event.target.value = "";
                   }}
                 />
               </label>
-              {codexImages.length ? (
-                <div className="codex-image-list">
-                  {codexImages.map((image) => (
+              {copilotImages.length ? (
+                <div className="copilot-image-list">
+                  {copilotImages.map((image) => (
                     <button
-                      className="codex-image-pill"
+                      className="copilot-image-pill"
                       key={`${image.name}-${image.dataUrl.length}`}
                       type="button"
-                      onClick={() => setCodexImages((current) => current.filter((item) => item !== image))}
+                      onClick={() => setCopilotImages((current) => current.filter((item) => item !== image))}
                       aria-label={`Remove ${image.name}`}
                     >
                       {image.name}
@@ -1118,8 +1118,8 @@ export function PulseStorefront({ categories, products }: Props) {
                 </div>
               ) : null}
             </div>
-            <button className="codex-send button button-dark" type="submit" disabled={isCodexLoading}>
-              {isCodexLoading ? "..." : "Send"}
+            <button className="copilot-send button button-dark" type="submit" disabled={isCopilotLoading}>
+              {isCopilotLoading ? "..." : "Send"}
             </button>
           </form>
         </aside>
